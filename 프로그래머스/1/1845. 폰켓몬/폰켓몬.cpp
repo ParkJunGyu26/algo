@@ -1,12 +1,13 @@
 #include <vector>
-#include <map>
+#include <unordered_map>
 using namespace std;
 
 int solution(vector<int> nums)
 {
-    int n = nums.size();
-    map<int, int> m;
-    for (int i = 0; i < n; i++)
-        m[nums[i]]++;
-    return min((int)m.size(), n/2);
+    unordered_map<int, int> hash;
+    
+    for (auto num : nums) 
+        hash[num]++;
+    
+    return min(hash.size(), nums.size() / 2);
 }
