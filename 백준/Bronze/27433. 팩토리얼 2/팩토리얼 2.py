@@ -1,12 +1,22 @@
 import sys
 input = sys.stdin.readline
 
-def factorial(n):
-    if n <= 1:
-        ans = 1
+n = int(input())
+ans = 1
+
+def mul(num):
+    global ans
+
+    ans *= num
+
+    if num == n:
+        return ans
     else:
-        ans = factorial(n-1) * n
+        mul(num+1)
 
-    return ans
 
-print(factorial(int(input())))
+if n == 0:
+    print(1)
+else:
+    mul(1)
+    print(ans)
