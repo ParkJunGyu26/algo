@@ -12,14 +12,8 @@ int solution(int bridge_length, int weight, vector<int> truck_weights) {
     // 다리 위에 올라간 트럭
     queue<int> q;
     
-    while(1)
+    while(idx != truck_weights.size())
     {
-        if (idx == truck_weights.size())
-        {
-            answer += bridge_length;
-            break;
-        }
-        
         answer++;
         
         int tmp = truck_weights[idx];
@@ -42,5 +36,5 @@ int solution(int bridge_length, int weight, vector<int> truck_weights) {
         }
     }
     
-    return answer;
+    return answer + bridge_length;
 }
