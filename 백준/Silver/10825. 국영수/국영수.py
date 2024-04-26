@@ -1,12 +1,14 @@
-li = []
+import sys
+
+input = sys.stdin.readline
 
 n = int(input())
+li = []
 
 for i in range(n):
-    name, ko, en, math = input().split()
-    li.append([name, int(ko), int(en), int(math)])
+    target = input().rstrip().split()
+    li.append(target)
 
-sort_li = sorted(li, key = lambda x : [-x[1], x[2], -x[3], x[0]])
-
-for i in sort_li:
+li.sort(key=lambda x: (-int(x[1]), int(x[2]), -int(x[3]), x[0]))
+for i in li:
     print(i[0])
