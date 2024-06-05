@@ -4,10 +4,10 @@ input = sys.stdin.readline
 
 def bfs(node):
     cnt = 1
-    q = deque([(node)])
+    q = deque([node])
 
     while q:
-        target = q.pop()
+        target = q.popleft()
 
         for i in g[target]:
             if not visited[i]:
