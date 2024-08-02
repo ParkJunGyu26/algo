@@ -1,44 +1,31 @@
 import sys
 input = sys.stdin.readline
 
-def binary_search(array, target):
-    start, end = 0, len(array) - 1
-
-    while start <= end:
-        mid = (start + end) // 2
-
-        if array[mid] < target:
-            start = mid + 1
-        else:
-            end = mid - 1
-    
-    return start
-
+# 하.. 이진탐색으로 풀려니깐 어렵네... 다음에 또 풀어보자
 n, h = map(int, input().split())
-
-down = []
-up = []
-for i in range(n):
-    if i % 2 == 0:
-        down.append(int(input()))
-    else:
-        up.append(int(input()))
-
-down.sort()
-up.sort()
+bottom = [0] * (h+1)
+top = [0] * (h+1)
 
 min_count = n
 range_count = 0
 
-for i in range(1, h+1):
-    down_cnt = len(down) - binary_search(down, i - 0.5)
-    up_cnt = len(up) - binary_search(up, h - i + 0.5)
-    total_cnt = up_cnt + down_cnt
+for i in range(n):
+    tmp = int(input())
+    if i % 2 == 0:
+        bottom[tmp] += 1
+    else:
+        top[tmp] += 1
 
-    if min_count == total_cnt:
-        range_count += 1
-    elif min_count > total_cnt:
-        min_count = total_cnt
+for i in range(h-1, 0, -1):
+    bottom[i] += bottom[i+1]
+    top[i] += top[i+1]
+
+for i in range(1, h+1):
+    if min_count > (bottom[i] + top[h-i+1]):
+        min_count = bottom[i] + top[h-i+1]
         range_count = 1
+    elif min_count == (bottom[i] + top[h-i+1]):
+        range_count += 1
 
 print(min_count, range_count)
+# 누적합도 쉽지 않네...
