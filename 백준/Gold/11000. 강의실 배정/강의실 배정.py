@@ -1,26 +1,21 @@
 import sys
-from collections import deque
 import heapq
 input = sys.stdin.readline
 
 n = int(input())
 hq = []
-for i in range(n):
-    s, t = map(int, input().split())
-    heapq.heappush(hq, [s, t])
+for _ in range(n):
+    s, e = map(int, input().split())
+    heapq.heappush(hq, (s, e))
 
-ans = 0
-remain = [] # 끝나는 시간 저장
+start, end = heapq.heappop(hq)
+end_room = []
+heapq.heappush(end_room, end)
+
 while hq:
     start, end = heapq.heappop(hq)
-    if remain:
-        remain_fast = heapq.heappop(remain)
-        if remain_fast <= start:
-           ans -= 1
-        else:
-            heapq.heappush(remain, remain_fast)
-           
-    heapq.heappush(remain, end)
-    ans += 1
+    if end_room and end_room[0] <= start:
+        heapq.heappop(end_room)
+    heapq.heappush(end_room, end)
 
-print(ans)
+print(len(end_room))
