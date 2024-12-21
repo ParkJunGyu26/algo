@@ -1,58 +1,42 @@
 #include <iostream>
-
+#include <vector>
 using namespace std;
 
-class Node {
-public:
-    int data;
-    Node* left = NULL;
-    Node* right = NULL;
+vector<int> preorder;
 
-    Node(int num) {
-        data = num;
+// 재귀적으로 후위 순회를 출력하는 함수
+void postorder(int start, int end) {
+    // 더 이상 탐색할 노드가 없으면 종료
+    if (start >= end) return;
+
+    int root = preorder[start]; // 현재 서브트리의 루트
+    int idx = start + 1; // 루트 다음부터 탐색 시작
+
+    // 오른쪽 서브트리의 시작 지점 찾기
+    while (idx < end && preorder[idx] < root) {
+        idx++;
     }
-};
 
-void set_node(Node& root, Node* node); // 매개변수를 Node*로 수정
-void set_right(Node& root, Node* node); // 매개변수를 Node*로 수정
-void set_left(Node& root, Node* node); // 매개변수를 Node*로 수정
-
-// 크기 비교
-void set_node(Node& root, Node* node) {
-    if (root.data < node->data) set_right(root, node);
-    else set_left(root, node);
-}
-
-void set_right(Node& root, Node* node) {
-    if (root.right == NULL) root.right = node;
-    else set_node(*root.right, node); // 기존 자식 노드를 기준으로 재귀 호출
-}
-
-void set_left(Node& root, Node* node) {
-    if (root.left == NULL) root.left = node;
-    else set_node(*root.left, node); // 기존 자식 노드를 기준으로 재귀 호출
-}
-
-void solution(Node& node) {
-    if (node.left != NULL) solution(*node.left);
-    if (node.right != NULL) solution(*node.right);
-    cout << node.data << "\n";
+    // 왼쪽 서브트리 후위 순회
+    postorder(start + 1, idx);
+    // 오른쪽 서브트리 후위 순회
+    postorder(idx, end);
+    // 현재 루트를 출력
+    cout << root << "\n";
 }
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-    cout.tie(NULL);
 
     int number;
-    cin >> number;
-    Node* root = new Node(number); // 루트 노드 생성
-
+    // EOF까지 입력 받기
     while (cin >> number) {
-        Node* node = new Node(number); // 입력받은 값으로 새 노드 생성
-        set_node(*root, node); // 포인터를 전달
+        preorder.push_back(number);
     }
 
-    solution(*root); // 트리 출력
+    // 전체 범위에 대해 후위 순회
+    postorder(0, preorder.size());
+
     return 0;
 }
