@@ -2,84 +2,71 @@
 #include <vector>
 #include <queue>
 #include <algorithm>
-
 using namespace std;
 
-int n, num, temp;
-int visited[100001] = {0};
+int n;
 
-void bfs(int node, vector<vector<pair<int, int>>> &graph, vector<int> &res) {
-	queue<int> q;
-	q.push(node);
-	visited[node] = 1;
+// BFS 함수: 가장 먼 노드와 거리를 반환
+pair<int, int> bfs(int start, const vector<vector<pair<int, int>>> &graph) {
+    vector<int> distance(n + 1, -1); // 거리 배열, -1로 초기화
+    queue<int> q;
 
-	while (!q.empty()) {
-		int now_node = q.front();
-		q.pop();
+    q.push(start);
+    distance[start] = 0; // 시작 노드는 거리 0
 
-		for (int i = 0; i < graph[now_node].size(); i++) {
-			int next_node = graph[now_node][i].first;
-			int next_res = graph[now_node][i].second;
+    int farthest_node = start;
+    int max_distance = 0;
 
-			// cout << "n_node : " << next_node << "\n";
-			// cout << "n_res : " << next_res << "\n";
-			// cout << "----\n";
+    while (!q.empty()) {
+        int current = q.front();
+        q.pop();
 
-			if (visited[next_node] == 0) {
-				visited[next_node] = 1;
-				res[next_node] = res[now_node] + next_res;
-				q.push(next_node);
-			}
-		}
-	}
+        for (auto &[next, weight] : graph[current]) {
+            if (distance[next] == -1) { // 방문하지 않은 노드만 처리
+                distance[next] = distance[current] + weight;
+                q.push(next);
+
+                if (distance[next] > max_distance) {
+                    max_distance = distance[next];
+                    farthest_node = next;
+                }
+            }
+        }
+    }
+
+    return {farthest_node, max_distance};
 }
 
-// bfs, dfs를 각각 한 번씩 하자
-// 1번 : 루트에서 제일 멀리있는 곳
-// 2번 : 루트에서 제일 먼 곳에서 제일 먼 곳
 int main() {
-	ios_base::sync_with_stdio(false);
-	cin.tie(NULL);
-	cout.tie(NULL);
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
 
-	cin >> n;
-	vector<vector<pair<int, int>>> graph(n+1); 
-	for (int i = 0; i < n; i++) {
-		cin >> num;
+    cin >> n;
+    vector<vector<pair<int, int>>> graph(n + 1);
 
-		vector<int> tmp;
-		while (cin >> temp) {
-			if (temp == -1) break;
-			tmp.push_back(temp);
-		}
+    for (int i = 0; i < n; i++) {
+        int node;
+        cin >> node;
 
-		for (int j = 0; j < tmp.size()/2; j++)
-			graph[num].push_back({tmp[2*j], tmp[2*j+1]});
-	}
+        while (true) {
+            int adj, weight;
+            cin >> adj;
+            if (adj == -1) break;
+            cin >> weight;
 
-	// for (int i = 1; i <= n; i++) {
-	// 	for (int j = 0; j < graph[i].size(); j++) cout << "i : " << i << " : " << graph[i][j].first << " " << graph[i][j].second << "\n";
-	// 	cout << "\n";
-	// }
+            graph[node].emplace_back(adj, weight);
+        }
+    }
 
-	vector<int> res(n+1);
-	bfs(1, graph, res); // res 깂 세팅(1번)
-	int MAX = *max_element(res.begin(), res.end());
-	
-	// for (int i = 1; i <= n; i++)
-	// 	cout << "i : " << i << ", " << res[i] << "\n";
+    // 1차 BFS: 루트에서 가장 먼 노드 찾기
+    auto result1 = bfs(1, graph);
+    int farthest_node = result1.first;
 
-	// cout << "max : " << MAX << "\n";
-	int hubo_node;
-	for (int i = 1; i <= n; i++) {
-		if (res[i] == MAX) {
-			hubo_node = i;
-		}
-		visited[i] = 0;
-	}
+    // 2차 BFS: 가장 먼 노드에서 출발하여 트리의 지름 계산
+    auto result2 = bfs(farthest_node, graph);
+    int diameter = result2.second;
 
-	vector<int> res2(n+1);
-	bfs(hubo_node, graph, res2);
-	MAX = *max_element(res2.begin(), res2.end());
-	cout << MAX;
+    cout << diameter << '\n';
+
+    return 0;
 }
