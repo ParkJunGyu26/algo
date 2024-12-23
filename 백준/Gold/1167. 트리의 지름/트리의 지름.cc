@@ -1,40 +1,32 @@
 #include <iostream>
 #include <vector>
-#include <queue>
 #include <algorithm>
 using namespace std;
 
 int n;
+vector<vector<pair<int, int>>> graph;
+vector<bool> visited;
+int diameter = 0;
 
-// BFS 함수: 가장 먼 노드와 거리를 반환
-pair<int, int> bfs(int start, const vector<vector<pair<int, int>>> &graph) {
-    vector<int> distance(n + 1, -1); // 거리 배열, -1로 초기화
-    queue<int> q;
+// DFS 함수: 각 노드에서 최대 거리 반환
+int dfs(int node, int parent) {
+    int max1 = 0, max2 = 0;
 
-    q.push(start);
-    distance[start] = 0; // 시작 노드는 거리 0
+    for (auto &[next, weight] : graph[node]) {
+        if (next == parent) continue;
 
-    int farthest_node = start;
-    int max_distance = 0;
+        int dist = dfs(next, node) + weight;
 
-    while (!q.empty()) {
-        int current = q.front();
-        q.pop();
-
-        for (auto &[next, weight] : graph[current]) {
-            if (distance[next] == -1) { // 방문하지 않은 노드만 처리
-                distance[next] = distance[current] + weight;
-                q.push(next);
-
-                if (distance[next] > max_distance) {
-                    max_distance = distance[next];
-                    farthest_node = next;
-                }
-            }
+        if (dist > max1) {
+            max2 = max1;
+            max1 = dist;
+        } else if (dist > max2) {
+            max2 = dist;
         }
     }
 
-    return {farthest_node, max_distance};
+    diameter = max(diameter, max1 + max2); // 두 경로의 합으로 지름 갱신
+    return max1;
 }
 
 int main() {
@@ -42,7 +34,7 @@ int main() {
     cin.tie(nullptr);
 
     cin >> n;
-    vector<vector<pair<int, int>>> graph(n + 1);
+    graph.resize(n + 1);
 
     for (int i = 0; i < n; i++) {
         int node;
@@ -58,14 +50,8 @@ int main() {
         }
     }
 
-    // 1차 BFS: 루트에서 가장 먼 노드 찾기
-    auto result1 = bfs(1, graph);
-    int farthest_node = result1.first;
-
-    // 2차 BFS: 가장 먼 노드에서 출발하여 트리의 지름 계산
-    auto result2 = bfs(farthest_node, graph);
-    int diameter = result2.second;
-
+    visited.assign(n + 1, false);
+    dfs(1, -1); // 루트 노드에서 시작
     cout << diameter << '\n';
 
     return 0;
