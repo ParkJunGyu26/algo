@@ -1,66 +1,49 @@
 #include <iostream>
+#include <set>
 #include <vector>
 #include <string>
-#include <set>
 
 using namespace std;
 
-int visited[8] = {0};
+set<string> res; // 중복 제거를 위한 결과 집합
 string n;
-set<vector<string>> answer;
 
-void dfs(vector<string> &hubo, string &hubo_string) {
-	if (hubo_string.size() == n.size()) {
-		if (hubo_string == n) {
-			answer.insert(hubo);
-			// for (auto h : hubo) cout << h << " ";
-			// cout << "\n";
-		}
-		return;
-	}
+// 재귀 함수: 가능한 문자열을 왼쪽과 오른쪽으로 확장
+void go(vector<string> arr, int l, int r) {
+    // 모든 숫자를 사용한 경우 결과 저장
+    if (l == 0 && r == n.size() - 1) {
+        string combined = "";
+        for (const string &s : arr) {
+            combined += s + ","; // 구분자 ','를 추가
+        }
+        res.insert(combined);
+        return;
+    }
 
-	for (int i = 0; i < n.size(); i++) {
-		if (visited[i] == 0) {
-			visited[i] = 1;
-			hubo_string += n[i];
-			hubo.push_back(hubo_string);
+    // 왼쪽으로 확장
+    if (l > 0) {
+        vector<string> next_arr = arr;
+        next_arr.push_back(n[l - 1] + arr.back());
+        go(next_arr, l - 1, r);
+    }
 
-			dfs(hubo, hubo_string);
-
-			hubo_string.pop_back();
-			hubo.pop_back();
-
-			string tmp = "";
-			tmp += n[i];
-			tmp += hubo_string;
-
-			hubo.push_back(tmp);
-			dfs(hubo, tmp);
-
-			hubo.pop_back();
-			visited[i] = 0;
-		}
-	}
+    // 오른쪽으로 확장
+    if (r < n.size() - 1) {
+        vector<string> next_arr = arr;
+        next_arr.push_back(arr.back() + n[r + 1]);
+        go(next_arr, l, r + 1);
+    }
 }
 
 int main() {
-	ios_base::sync_with_stdio(false);
-	cin.tie(NULL);
-	cout.tie(NULL);
+    cin >> n;
 
-	cin >> n;
+    // 각 숫자를 초기 중심으로 설정
+    for (int i = 0; i < n.size(); ++i) {
+        vector<string> arr = {string(1, n[i])}; // 초기 배열에 현재 숫자를 넣음
+        go(arr, i, i);
+    }
 
-	for (int i = 0; i < n.size(); i++) {
-		visited[i] = 1;
-		string hubo_string = "";
-		hubo_string += n[i];
-
-		vector<string> hubo;
-		hubo.push_back(hubo_string);
-
-		dfs(hubo, hubo_string);
-		visited[i] = 0;
-	}
-
-	cout << answer.size();
+    cout << res.size() << "\n";
+    return 0;
 }
