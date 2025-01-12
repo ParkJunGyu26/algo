@@ -1,59 +1,53 @@
 #include <iostream>
 #include <vector>
-#include <unordered_map>
+#include <algorithm>
 
 using namespace std;
 
-int t, n, m;
-
-// 누적합
 int main() {
-	ios_base::sync_with_stdio(false);
-	cin.tie(NULL);
-	cout.tie(NULL);
-	unordered_map<int, long long> um_A;
-	unordered_map<int, long long> um_B;
-
-	cin >> t >> n;
-	vector<int> A(n);
-	for (int i = 0; i < n; i++) cin >> A[i];
-	cin >> m;
-	vector<int> B(m);
-	for (int i = 0; i < m; i++) cin >> B[i];
-
-	vector<int> prefix_A(n+1);
-	vector<int> prefix_B(m+1);
-	
-	for (int i = 0; i < n; i++) prefix_A[i+1] = prefix_A[i] + A[i];
-	for (int i = 0; i < m; i++) prefix_B[i+1] = prefix_B[i] + B[i];
-
-	for (int i = 1; i < n+1; i++) {
-		for (int j = i; j <= n; j++) {
-			int target = prefix_A[j] - prefix_A[j-i];
-			if (um_A.find(target) == um_A.end()) um_A[target] = 1;
-			else um_A[target]++;
-		}
-	}
-
-	for (int i = 1; i < m+1; i++) {
-		for (int j = i; j <= m; j++) {
-			int target = prefix_B[j] - prefix_B[j-i];
-			if (um_B.find(target) == um_B.end()) um_B[target] = 1;
-			else um_B[target]++;
-		}
-	}
-
-	long long answer = 0;
-
-	if (um_A.size() > um_B.size()) {
-		for (auto B : um_B) {
-			if (um_A.find(t-B.first) != um_A.end()) answer += (B.second * um_A[t-B.first]);
-		}
-	} else {
-		for (auto A : um_A) {
-			if (um_B.find(t-A.first) != um_B.end()) answer += (A.second * um_B[t-A.first]);
-		}
-	}
-
-	cout << answer;
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    
+    int t, n, m;
+    cin >> t >> n;
+    vector<int> A(n);
+    for(int i = 0; i < n; i++) cin >> A[i];
+    cin >> m;
+    vector<int> B(m);
+    for(int i = 0; i < m; i++) cin >> B[i];
+    
+    // A의 모든 부분합을 저장
+    vector<int> sum_A;
+    for(int i = 0; i < n; i++) {
+        int sum = 0;
+        for(int j = i; j < n; j++) {
+            sum += A[j];
+            sum_A.push_back(sum);
+        }
+    }
+    
+    // B의 모든 부분합을 저장
+    vector<int> sum_B;
+    for(int i = 0; i < m; i++) {
+        int sum = 0;
+        for(int j = i; j < m; j++) {
+            sum += B[j];
+            sum_B.push_back(sum);
+        }
+    }
+    
+    // B의 부분합을 정렬하여 이분 탐색 준비
+    sort(sum_B.begin(), sum_B.end());
+    
+    long long answer = 0;
+    // A의 각 부분합에 대해 B에서 필요한 값을 이분 탐색
+    for(int sum_a : sum_A) {
+        int target = t - sum_a;
+        auto upper = upper_bound(sum_B.begin(), sum_B.end(), target);
+        auto lower = lower_bound(sum_B.begin(), sum_B.end(), target);
+        answer += upper - lower;
+    }
+    
+    cout << answer;
+    return 0;
 }
