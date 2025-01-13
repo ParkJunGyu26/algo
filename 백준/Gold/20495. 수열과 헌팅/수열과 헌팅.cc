@@ -4,6 +4,16 @@
 
 using namespace std;
 
+// 최소 인덱스 탐색
+int min_check(long long target, vector<long long> &sorted_MAX) {
+    return lower_bound(sorted_MAX.begin(), sorted_MAX.end(), target) - sorted_MAX.begin() + 1;
+}
+
+// 최대 인덱스 탐색
+int max_check(long long target, vector<long long> &sorted_MIN) {
+    return upper_bound(sorted_MIN.begin(), sorted_MIN.end(), target) - sorted_MIN.begin();
+}
+
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
@@ -11,35 +21,28 @@ int main() {
 
     int n;
     cin >> n;
-    vector<pair<long long, long long>> nums(n);
-    vector<long long> sorted_min, sorted_max;
+    vector<long long> MAX, MIN;
+    vector<long long> sorted_MAX, sorted_MIN;
 
     // 입력 받기
     for (int i = 0; i < n; i++) {
         int a, b;
         cin >> a >> b;
-        nums[i] = {a - b, a + b};  // 최소값, 최대값 저장
-        sorted_min.push_back(a - b);
-        sorted_max.push_back(a + b);
+        MIN.push_back(a-b);
+        MAX.push_back(a+b);
     }
 
-    // 이분 탐색을 위해 정렬
-    sort(sorted_min.begin(), sorted_min.end());
-    sort(sorted_max.begin(), sorted_max.end());
+    // 정렬된 배열 만들기
+    sorted_MIN = MIN;
+    sorted_MAX = MAX;
+    sort(sorted_MIN.begin(), sorted_MIN.end());
+    sort(sorted_MAX.begin(), sorted_MAX.end());
 
     // 각 수에 대해 가능한 위치 찾기
     for (int i = 0; i < n; i++) {
-        long long cur_min = nums[i].first;
-        long long cur_max = nums[i].second;
-
-        // cur_min보다 작은 최대값의 개수 + 1이 최소 위치
-        int min_pos = lower_bound(sorted_max.begin(), sorted_max.end(), cur_min) - sorted_max.begin() + 1;
-        
-        // cur_max보다 작거나 같은 최소값의 개수가 최대 위치
-        int max_pos = upper_bound(sorted_min.begin(), sorted_min.end(), cur_max) - sorted_min.begin();
-
-        cout << min_pos << " " << max_pos << "\n";
+        cout << min_check(MIN[i], sorted_MAX) << " " 
+             << max_check(MAX[i], sorted_MIN) << "\n";
     }
-
+    
     return 0;
 }
