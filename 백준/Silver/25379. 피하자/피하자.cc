@@ -19,7 +19,7 @@ int main() {
 
 	int odd = 0;
 	int even = 0;
-	int answer = 0;
+	long long answer = 0;
 	for (int i = 0; i < n; i++) if (vec[i] % 2 == 0) even++; else odd++;
 
 	// 짝수 모두 왼쪽
@@ -36,7 +36,7 @@ int main() {
 	}
 
 	// 짝수 모두 오른쪽
-	int cnt = 0;
+	long long cnt = 0;
 	queue<int> q2;
 	for (int i = 0; i < n; i++) {
 		if (i < odd) {
