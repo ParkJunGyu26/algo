@@ -7,31 +7,21 @@ int n, k;
 int answer = 0;
 vector<int> vec;
 
-void check(vector<int> &hubo) {
-	int weight = 500;
-
-	for (int i = 0; i < n; i++) {
-		weight -= k;
-		weight += hubo[i];
-
-		if (weight < 500) return;
-	}
-
-	answer++;
-}
-
-void dfs(vector<int> &hubo, vector<bool> &visited) {
+void dfs(vector<int> &hubo, vector<bool> &visited, int weight) {
 	if (hubo.size() == n) {
-		check(hubo);
+		answer++;
 		return;
 	}
 
 	for (int i = 0; i < n; i++) {
 		if (!visited[i]) {
-			visited[i] = true;
-			hubo.push_back(vec[i]);
+			int nWeight = weight + vec[i] - k;
+			if (nWeight < 500) continue;
 
-			dfs(hubo, visited);
+			hubo.push_back(i);
+			visited[i] = true;
+
+			dfs(hubo, visited, nWeight);
 
 			visited[i] = false;
 			hubo.pop_back();
@@ -39,24 +29,18 @@ void dfs(vector<int> &hubo, vector<bool> &visited) {
 	}
 }
 
-// 순열만들고, 그 값으로 탐색
 int main() {
 	ios_base::sync_with_stdio(false);
-	cout.tie(NULL);
 	cin.tie(NULL);
+	cout.tie(NULL);
 
 	cin >> n >> k;
 	vec.resize(n);
 	for (int i = 0; i < n; i++) cin >> vec[i];
 
-	for (int i = 0; i < n; i++) {
-		vector<int> hubo;
-		vector<bool> visited(n);
-		visited[i] = true;
-		hubo.push_back(vec[i]);
-
-		dfs(hubo, visited);
-	}
+	vector<bool> visited(n);
+	vector<int> hubo;
+	dfs(hubo, visited, 500);
 
 	cout << answer;
 }
