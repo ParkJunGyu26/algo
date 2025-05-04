@@ -1,127 +1,97 @@
 #include <iostream>
-#include <string>
 #include <vector>
-#include <unordered_set>
+#include <string>
 
 using namespace std;
 
-bool check = false;
-vector<vector<pair<int, int>>> vec; // 좌표숫자 + 구역번호
-vector<unordered_set<int>> location(9); // 0구역 ~ 8구역
-vector<unordered_set<int>> garo(9); // 0행 ~ 8행
-vector<unordered_set<int>> sero(9); // 0열 ~ 8열
+// 스도쿠 보드
+vector<vector<int>> board(9, vector<int>(9));
 
-void Print() {
-    for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 9; j++) cout << vec[i][j].first;
-        cout << "\n";
-    }
+// 각 행, 열, 3x3 박스에 숫자 사용 여부를 저장
+bool row_used[9][10] = {false};
+bool col_used[9][10] = {false};
+bool box_used[9][10] = {false};
+
+// 빈 칸 위치 저장
+vector<pair<int, int>> empty_cells;
+
+// 숫자가 해당 위치에 들어갈 수 있는지 확인
+bool isValid(int row, int col, int num) {
+    int box_idx = (row / 3) * 3 + (col / 3);
+    return !row_used[row][num] && !col_used[col][num] && !box_used[box_idx][num];
 }
 
-bool inRange(int y, int x, int number) {
-    int L = vec[y][x].second;
-    return (
-        location[L].find(number) == location[L].end() &&
-        garo[y].find(number) == garo[y].end() &&
-        sero[x].find(number) == sero[x].end()
-    );
-}
-
-void insertRange(int y, int x, int number) {
-    vec[y][x].first = number;
-    int L = vec[y][x].second;
-    location[L].insert(number);
-    garo[y].insert(number);
-    sero[x].insert(number);
-}
-
-void deleteRange(int y, int x, int number) {
-    vec[y][x].first = 0;
-    int L = vec[y][x].second;
-    location[L].erase(number);
-    garo[y].erase(number);
-    sero[x].erase(number);
-}
-
-// 수정된 백트래킹 함수
-void backtracking(int pos) {
-    if (check) return;
-    
-    // 모든 셀을 다 채웠으면 종료
-    if (pos == 81) {
-        check = true;
-        return;
+// 백트래킹 함수
+bool solve(int idx) {
+    // 모든 빈 칸을 채웠으면 성공
+    if (idx == empty_cells.size()) {
+        return true;
     }
     
-    // 현재 위치의 행과 열 계산
-    int y = pos / 9;
-    int x = pos % 9;
+    int row = empty_cells[idx].first;
+    int col = empty_cells[idx].second;
+    int box_idx = (row / 3) * 3 + (col / 3);
     
-    // 이미 숫자가 채워져 있으면 다음 셀로 이동
-    if (vec[y][x].first != 0) {
-        backtracking(pos + 1);
-        return;
-    }
-    
-    // 빈 셀이면 1부터 9까지 가능한 숫자 시도
+    // 1부터 9까지 시도
     for (int num = 1; num <= 9; num++) {
-        if (inRange(y, x, num)) {
-            insertRange(y, x, num);
-            backtracking(pos + 1);
+        if (isValid(row, col, num)) {
+            // 숫자 배치
+            board[row][col] = num;
+            row_used[row][num] = true;
+            col_used[col][num] = true;
+            box_used[box_idx][num] = true;
             
-            // 해결책을 찾았으면 더 이상 진행하지 않음
-            if (check) return;
+            // 다음 빈 칸으로 진행
+            if (solve(idx + 1)) {
+                return true;
+            }
             
-            // 해결책을 찾지 못했으면 숫자를 지우고 다음 숫자 시도
-            deleteRange(y, x, num);
+            // 백트래킹: 선택 취소
+            board[row][col] = 0;
+            row_used[row][num] = false;
+            col_used[col][num] = false;
+            box_used[box_idx][num] = false;
         }
     }
+    
+    // 현재 빈 칸에 가능한 숫자가 없음
+    return false;
 }
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-    cout.tie(NULL);
-
-    vec.resize(9, vector<pair<int, int>>(9));
+    
+    // 스도쿠 보드 입력
     for (int i = 0; i < 9; i++) {
-        string tmp;
-        cin >> tmp;
-
+        string line;
+        cin >> line;
         for (int j = 0; j < 9; j++) {
-            vec[i][j].first = tmp[j] - '0';
-            int number = vec[i][j].first;
+            board[i][j] = line[j] - '0';
             
-            // 구역 번호 설정 및 초기 값 삽입
-            if (i < 3) {
-                if (j < 3) vec[i][j].second = 0;
-                else if (j < 6) vec[i][j].second = 1;
-                else vec[i][j].second = 2;
-            } else if (i < 6) {
-                if (j < 3) vec[i][j].second = 3;
-                else if (j < 6) vec[i][j].second = 4;
-                else vec[i][j].second = 5;
+            // 이미 채워진 숫자 표시
+            if (board[i][j] != 0) {
+                int num = board[i][j];
+                row_used[i][num] = true;
+                col_used[j][num] = true;
+                box_used[(i / 3) * 3 + (j / 3)][num] = true;
             } else {
-                if (j < 3) vec[i][j].second = 6;
-                else if (j < 6) vec[i][j].second = 7;
-                else vec[i][j].second = 8;
-            }
-            
-            // 0이 아닌 숫자만 집합에 추가
-            if (number != 0) {
-                int L = vec[i][j].second;
-                location[L].insert(number);
-                garo[i].insert(number);
-                sero[j].insert(number);
+                // 빈 칸 위치 저장
+                empty_cells.push_back({i, j});
             }
         }
     }
-
-    // 백트래킹 시작 (0번 위치부터)
-    backtracking(0);
+    
+    // 스도쿠 풀기
+    solve(0);
     
     // 결과 출력
-    if (check) Print();
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            cout << board[i][j];
+        }
+        cout << "\n";
+    }
     
     return 0;
 }
