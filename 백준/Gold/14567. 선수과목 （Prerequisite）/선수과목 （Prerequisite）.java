@@ -6,7 +6,7 @@ public class Main {
     static int[] degree, answer;
     static ArrayList<ArrayList<Integer>> graph;
 
-    static void topologySort() {
+    static void topologySort() throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         Queue<Integer> q = new LinkedList<>();
         for (int i = 1; i <= n; i++) {
@@ -30,9 +30,9 @@ public class Main {
             }
         }
 
-        for (int i = 1; i <= n; i++) System.out.print(answer[i] + " ");
-
-        // for (int i = 1; i <= n; i++) bw.write(String.valueOf(answer[i]) + " ");
+        for (int i = 1; i <= n; i++) bw.write(String.valueOf(answer[i]) + " ");
+        bw.flush();
+        bw.close();
     }
 
     public static void main(String[] args) throws IOException {
@@ -58,5 +58,6 @@ public class Main {
         }
 
         topologySort();
+        br.close();
     }
 }
