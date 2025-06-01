@@ -7,6 +7,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         n = Integer.parseInt(br.readLine());
         A = new int[n];
         StringTokenizer st = new StringTokenizer(br.readLine());
@@ -18,8 +19,8 @@ public class Main {
             int sum = A[left] + A[right];
 
             if (sum == 0) {
-                System.out.println(0);
-                return;
+                answer = 0;
+                break;
             }
 
             if (Math.abs(answer) > Math.abs(sum)) answer = sum;
@@ -28,6 +29,9 @@ public class Main {
             else right--;
         }
 
-        System.out.println(answer);
+        bw.write(String.valueOf(answer));
+        bw.flush();
+        bw.close();
+        br.close();
     }
 }
