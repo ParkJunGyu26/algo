@@ -1,18 +1,10 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
-struct Info {
-	int start;
-	int target;
-	int res;
-};
-
 int n, m;
-vector<long long> H, PLUS, MINUS;
-vector<int> mCheck, pCheck;
+vector<int> H, PLUS, MINUS, mCheck, pCheck;
 
 int main() {
 	ios_base::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL);
@@ -48,16 +40,3 @@ int main() {
 		if (i != n-1) cout << " ";
 	}
 }
-
-/*
-
-10 6
-1 2 3 4 5 -1 -2 -3 -4 -5
-1 5 1
-1 6 1
-1 7 1
-1 5 1
-4 6 1
-5 7 1
-
-*/
