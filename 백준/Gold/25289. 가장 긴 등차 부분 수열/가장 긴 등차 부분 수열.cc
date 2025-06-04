@@ -1,40 +1,34 @@
 #include <iostream>
-#include <map>
 #include <algorithm>
 #include <vector>
-
+#include <cstring>
 using namespace std;
 
 int n;
 vector<int> A;
 
 int main() {
-	ios_base::sync_with_stdio(false);
-	cout.tie(NULL);
-	cin.tie(NULL);
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
 
-	cin >> n;
-	A.resize(n);
-	for (int i = 0; i < n; i++) cin >> A[i];
+    cin >> n;
+    A.resize(n);
+    for (int i = 0; i < n; i++) cin >> A[i];
 
-	int answer = 0;
-	for (int i = -99; i <= 99; i++) {
-		map<int, int> m;
-
-		for (int j = 0; j < n; j++) {
-			if (m.find(A[j] - i) == m.end()) m[A[j]] = 1;
-			else m[A[j]] = max((m[A[j] - i] + 1), m[A[j]]);
-		}
-
-		for (auto mm : m) answer = max(answer, mm.second);
-	}
-
-	cout << answer;
+    int answer = 1;
+    // 등차 d를 -99 ~ 99까지 모두 시도
+    for (int d = -99; d <= 99; d++) {
+        // dp[x]: 마지막 원소가 x인 등차수열의 최대 길이
+        int dp[101];
+        memset(dp, 0, sizeof(dp));
+        for (int i = 0; i < n; i++) {
+            int prev = A[i] - d;
+            if (1 <= prev && prev <= 100)
+                dp[A[i]] = max(dp[A[i]], dp[prev] + 1);
+            else
+                dp[A[i]] = max(dp[A[i]], 1);
+            answer = max(answer, dp[A[i]]);
+        }
+    }
+    cout << answer << '\n';
 }
-
-/*
-
-90 91 92 80 81 82 83 93 94 95
-
-
-*/
