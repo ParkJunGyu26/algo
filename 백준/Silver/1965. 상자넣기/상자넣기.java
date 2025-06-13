@@ -4,35 +4,44 @@ import java.io.*;
 public class Main {
     static int n;
     static int[] arr;
-    static int[][] dp;
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         n = Integer.parseInt(br.readLine());
         arr = new int[n];
-        dp = new int[n+1][n+1];
-        for (int i = 0; i <= n; i++) Arrays.fill(dp[i], 0);
 
         StringTokenizer st = new StringTokenizer(br.readLine());
         for (int i = 0; i < n; i++) arr[i] = Integer.parseInt(st.nextToken());
 
-        for (int i = 1; i <= n; i++) {
-            dp[i][i] = Math.max(1, dp[i-1][i]);
+        ArrayList<Integer> answer = new ArrayList<>();
+        answer.add(arr[0]);
+        for (int i = 1; i < n; i++) {
+            if (answer.get(answer.size()-1) < arr[i]) answer.add(arr[i]);
+            else {
+                int left = 0;
+                int right = answer.size()-1;
 
-            for (int j = i+1; j <= n; j++) {
-                dp[i][j] = dp[i-1][j];
-                if (arr[i-1] < arr[j-1]) {
-                    if (dp[i-1][j] < dp[i][i]+1) dp[i][j] = dp[i][i] + 1;
+                int index = -1;
+                while (left <= right) {
+                    int mid = (left + right) / 2;
+                    int target = answer.get(mid);
+
+                    if (target == arr[i]) {
+                        index = mid;
+                        break;
+                    } else if (target < arr[i]) {
+                        left = mid+1;
+                    } else {
+                        index = mid;
+                        right = mid-1;
+                    }
                 }
+
+                answer.set(index, arr[i]);
             }
         }
 
-        int answer = 0;
-        for (int i = 1; i <= n; i++) {
-            for (int j = 1; j <= n; j++) answer = Math.max(dp[i][j], answer);
-        }
-
-        bw.write(String.valueOf(answer));
+        bw.write(String.valueOf(answer.size()));
         bw.flush();
         bw.close();
         br.close();
