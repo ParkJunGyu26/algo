@@ -2,47 +2,37 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    static int n, m;
-    static int[] dx = {1, 0, 1}, dy = {0, 1, 1};
-    static int[][] graph, dp;
-
-    static boolean inRange(int x, int y) {
-        return (-1 < x && x < m && -1 < y && y < n);
-    }
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
-        graph = new int[n][m];
-        dp = new int[n+1][m+1];
+        int n = Integer.parseInt(st.nextToken());
+        int m = Integer.parseInt(st.nextToken());
 
-        for (int i = 0; i < n; i++) {
+        int[][] graph = new int[n + 1][m + 1];
+        for (int i = 1; i <= n; i++) {
             st = new StringTokenizer(br.readLine());
-            Arrays.fill(dp[i], 0);
-            for (int j = 0; j < m; j++) graph[i][j] = Integer.parseInt(st.nextToken());
-        }
-
-        dp[0][0] = graph[0][0];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                for (int k = 0; k < 3; k++) {
-                    int nx = j + dx[k];
-                    int ny = i + dy[k];
-                    
-                    if (!inRange(nx ,ny)) continue;
-                    
-                    if (dp[ny][nx] < dp[i][j] + graph[ny][nx]) dp[ny][nx] = (dp[i][j] + graph[ny][nx]);
-                }
+            for (int j = 1; j <= m; j++) {
+                graph[i][j] = Integer.parseInt(st.nextToken());
             }
         }
+        
+        // 단 2개의 행만 유지
+        int[] prevDp = new int[m + 1];
+        int[] currDp = new int[m + 1];
 
-        bw.write(dp[n-1][m-1] + "");
-        bw.flush();
-        bw.close();
-        br.close();
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                // prevDp는 (i-1)행, currDp는 (i)행을 의미
+                int maxPrev = Math.max(prevDp[j],           // 위에서 오는 경우
+                                    Math.max(currDp[j-1],   // 왼쪽에서 오는 경우
+                                             prevDp[j-1]));  // 왼쪽 위 대각선에서 오는 경우
+                currDp[j] = maxPrev + graph[i][j];
+            }
+            // 현재 행 계산이 끝났으면, 다음 루프를 위해 currDp를 prevDp로 복사
+            prevDp = Arrays.copyOf(currDp, m + 1);
+        }
+
+        System.out.println(prevDp[m]); // 마지막 행의 최종값이 정답
     }
-} 
+}
