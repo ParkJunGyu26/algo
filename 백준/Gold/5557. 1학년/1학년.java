@@ -2,49 +2,42 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    static int n;
-    static int[] arr;
-    static long[] dp = new long[21];
-
-    static boolean inRange(int num) {
-        return (-1 < num && num < 21);
-    }
-
-    static void DP(int num, int nNum, ArrayList<Integer> newNumList, long[] newDp) {
-        if (!inRange(nNum)) return;
-
-        if (!newNumList.contains(nNum)) newNumList.add(nNum);
-        newDp[nNum] += dp[num];
-    }
-
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        n = Integer.parseInt(br.readLine());
-        arr = new int[n];
+        int n = Integer.parseInt(br.readLine());
+        int[] arr = new int[n];
 
         StringTokenizer st = new StringTokenizer(br.readLine());
-        for (int i = 0; i < n; i++) arr[i] = Integer.parseInt(st.nextToken());
-
-        ArrayList<Integer> numList = new ArrayList<>();
-        numList.add(arr[0]);
-        dp[arr[0]] = 1;
-
-        for (int i = 1; i < n-1; i++) {
-            long[] newDp = new long[21];
-            ArrayList<Integer> newNumList = new ArrayList<>();
-            for (int num : numList) {
-                DP(num, num + arr[i], newNumList, newDp);
-                DP(num, num - arr[i], newNumList, newDp);
-            }
-
-            numList.clear();
-            for (int j = 0; j <= 20; j++) dp[j] = newDp[j];
-            for (int nNum : newNumList) numList.add(nNum);
+        for (int i = 0; i < n; i++) {
+            arr[i] = Integer.parseInt(st.nextToken());
         }
 
-        bw.write(dp[arr[n-1]] + "");
+        long[] dp = new long[21];
+
+        dp[arr[0]] = 1;
+
+        for (int i = 1; i < n - 1; i++) {
+            long[] newDp = new long[21];
+
+            for (int currentNum = 0; currentNum <= 20; currentNum++) {
+                if (dp[currentNum] == 0) continue;
+
+                int plusResult = currentNum + arr[i];
+                if (plusResult >= 0 && plusResult <= 20) {
+                    newDp[plusResult] += dp[currentNum];
+                }
+
+                int minusResult = currentNum - arr[i];
+                if (minusResult >= 0 && minusResult <= 20) {
+                    newDp[minusResult] += dp[currentNum];
+                }
+            }
+            System.arraycopy(newDp, 0, dp, 0, 21);
+        }
+
+        bw.write(dp[arr[n - 1]] + "");
         bw.flush();
         bw.close();
         br.close();
