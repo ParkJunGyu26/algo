@@ -2,85 +2,77 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    static int n, m, start, end, money;
-    static int[] res;
-    static ArrayList<ArrayList<Node>> graph;
-
-    static class Node {
-        int to, dist;
-        Node (int to, int dist) {
+    static class Edge {
+        int to, cost;
+        Edge(int to, int cost) {
             this.to = to;
-            this.dist = dist;
+            this.cost = cost;
         }
     }
 
-    static class Info {
-        Node node;
-        int totalMoney;
-
-        Info (Node node, int totalMoney) {
-            this.totalMoney = totalMoney;
-            this.node = node;
-        }
-    }
-
-    static void bfs() {
-        Queue<Info> q = new LinkedList<>();
-        q.offer(new Info(new Node(start, 0), 0));
-        res[start] = 0;
-
-        while (!q.isEmpty()) {
-            Info cur = q.poll();
-            Node curNode = cur.node;
-            int totalUsedMoney = cur.totalMoney;
-            
-            for (Node next : graph.get(curNode.to)) {
-                if (next.dist + totalUsedMoney > money) continue;
-
-                if (res[next.to] == 0 || res[next.to] == Integer.MAX_VALUE) res[next.to] = next.dist;
-                else {
-                    if (res[next.to] >= res[curNode.to]) continue;
-                    res[next.to] = Math.min(res[next.to], res[curNode.to]);
-                }
-                q.offer(new Info(next, next.dist + totalUsedMoney));
-            }
-        }
-    }
+    static int N, M, A, B, C;
+    static List<List<Edge>> graph;
 
     public static void main(String[] args) throws IOException {
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
-        start = Integer.parseInt(st.nextToken());
-        end = Integer.parseInt(st.nextToken());
-        money = Integer.parseInt(st.nextToken());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        A = Integer.parseInt(st.nextToken());
+        B = Integer.parseInt(st.nextToken());
+        C = Integer.parseInt(st.nextToken());
 
-        res = new int[n+1];
-        Arrays.fill(res, Integer.MAX_VALUE);
         graph = new ArrayList<>();
-        for (int i = 0; i <= n; i++) graph.add(new ArrayList<>());
+        for (int i = 0; i <= N; i++) graph.add(new ArrayList<>());
 
-        for (int i = 0; i < m; i++) {
-            int from, to, dist;
+        int maxCost = 0;
+        for (int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine());
-
-            from = Integer.parseInt(st.nextToken());
-            to = Integer.parseInt(st.nextToken());
-            dist = Integer.parseInt(st.nextToken());
-
-            graph.get(from).add(new Node(to, dist));
-            graph.get(to).add(new Node(from, dist));
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            int cost = Integer.parseInt(st.nextToken());
+            graph.get(u).add(new Edge(v, cost));
+            graph.get(v).add(new Edge(u, cost));
+            maxCost = Math.max(maxCost, cost);
         }
 
-        bfs();
+        int left = 1, right = maxCost;
+        int answer = -1;
 
-        int answer = res[end] == Integer.MAX_VALUE ? -1 : res[end];
-        bw.write(answer + "");
-        bw.flush();
-        bw.close();
-        br.close();
+        while (left <= right) {
+            int mid = (left + right) / 2;
+
+            if (canReachWithMaxToll(mid)) {
+                answer = mid;
+                right = mid - 1; // 더 작은 수치심으로 시도
+            } else {
+                left = mid + 1;
+            }
+        }
+
+        System.out.println(answer);
+    }
+
+    static boolean canReachWithMaxToll(int maxToll) {
+        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[1]));
+        boolean[] visited = new boolean[N + 1];
+        pq.offer(new int[]{A, 0});
+
+        while (!pq.isEmpty()) {
+            int[] cur = pq.poll();
+            int node = cur[0], costSum = cur[1];
+
+            if (node == B) return true;
+            if (visited[node]) continue;
+            visited[node] = true;
+
+            for (Edge e : graph.get(node)) {
+                if (!visited[e.to] && e.cost <= maxToll && costSum + e.cost <= C) {
+                    pq.offer(new int[]{e.to, costSum + e.cost});
+                }
+            }
+        }
+        return false;
     }
 }
