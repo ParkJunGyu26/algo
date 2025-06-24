@@ -37,7 +37,7 @@ public class Main {
             for (Node next : graph.get(curNode.to)) {
                 if (next.dist + totalUsedMoney > money) continue;
 
-                if (res[next.to] == 0 || res[next.to] == Integer.MAX_VALUE) res[next.to] = Math.max(res[curNode.to], next.dist);
+                if (res[next.to] == 0 || res[next.to] == Integer.MAX_VALUE) res[next.to] = next.dist;
                 else {
                     if (res[next.to] >= res[curNode.to]) continue;
                     res[next.to] = Math.min(res[next.to], res[curNode.to]);
@@ -72,6 +72,7 @@ public class Main {
             dist = Integer.parseInt(st.nextToken());
 
             graph.get(from).add(new Node(to, dist));
+            graph.get(to).add(new Node(from, dist));
         }
 
         bfs();
