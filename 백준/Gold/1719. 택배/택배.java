@@ -1,47 +1,11 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-    static String[][] answer;
+    static final int INF = 1_000_000_000;
+    static int[][] dist, first;
     static int n, m;
-    static ArrayList<ArrayList<Edge>> graph;
 
-    static class Edge {
-        int node, dist;
-
-        Edge(int node, int dist) {
-            this.node = node;
-            this.dist = dist;
-        }
-    }
-
-    static void dijkstra(int start) {
-        PriorityQueue<Edge> pq = new PriorityQueue<>((e1, e2) -> Integer.compare(e1.dist, e2.dist));
-        pq.offer(new Edge(start, 0));
-
-        int[] distance = new int[n+1];
-        Arrays.fill(distance, Integer.MAX_VALUE);
-        distance[start] = 0;
-
-        while (!pq.isEmpty()) {
-            Edge cur = pq.poll();
-
-            if (distance[cur.node] < cur.dist) continue;
-
-            for (Edge next : graph.get(cur.node)) {
-                if (distance[next.node] > distance[cur.node] + next.dist) {
-                    if (answer[start-1][cur.node-1] == "-") answer[start-1][next.node-1] = Integer.toString(next.node);
-                    else answer[start-1][next.node-1] = answer[start-1][cur.node-1];
-                    distance[next.node] = distance[cur.node] + next.dist;
-                    pq.offer(new Edge(next.node, distance[next.node]));
-                }
-            }
-        }
-    }
-
-
-    // 다익스트라(우선순위 큐) : E log V
-    // 해당 문제의 시간복잡도 -> N * M log N
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
@@ -49,32 +13,51 @@ public class Main {
 
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
-        answer = new String[n][n];
-        for (int i = 0; i < n; i++) Arrays.fill(answer[i], "-");
 
-        graph = new ArrayList<>();
-        for (int i = 0; i <= n; i++) graph.add(new ArrayList<>());
+        dist = new int[n + 1][n + 1];
+        first = new int[n + 1][n + 1];
+
+        for (int i = 1; i <= n; i++) {
+            Arrays.fill(dist[i], INF);
+            dist[i][i] = 0;
+        }
 
         for (int i = 0; i < m; i++) {
-            int a, b, c;
             st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            int cost = Integer.parseInt(st.nextToken());
 
-            a = Integer.parseInt(st.nextToken());
-            b = Integer.parseInt(st.nextToken());
-            c = Integer.parseInt(st.nextToken());
+            if (cost < dist[u][v]) {
+                dist[u][v] = cost;
+                dist[v][u] = cost;
+                first[u][v] = v;
+                first[v][u] = u;
+            }
+        }
 
-            graph.get(a).add(new Edge(b, c));
-            graph.get(b).add(new Edge(a, c));
+        for (int k = 1; k <= n; k++) {
+            for (int i = 1; i <= n; i++) {
+                if (i == k) continue;
+                for (int j = 1; j <= n; j++) {
+                    if (j == k || i == j) continue;
+
+                    if (dist[i][j] > dist[i][k] + dist[k][j]) {
+                        dist[i][j] = dist[i][k] + dist[k][j];
+                        first[i][j] = first[i][k];
+                    }
+                }
+            }
         }
 
         for (int i = 1; i <= n; i++) {
-            dijkstra(i);
-        }
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) bw.write(answer[i][j] + " ");
+            for (int j = 1; j <= n; j++) {
+                if (i == j) bw.write("- ");
+                else bw.write(first[i][j] + " ");
+            }
             bw.write("\n");
         }
+
         bw.flush();
         bw.close();
         br.close();
