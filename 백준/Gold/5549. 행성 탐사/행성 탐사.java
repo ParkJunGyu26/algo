@@ -2,18 +2,8 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    static char[][] graph;
+    static int[][] jungleSum, seaSum, iceSum;
     static int n, m, k;
-    static Triple[][] prefixSum;
-
-    static class Triple {
-        int jungle, sea, ice;
-        Triple(int j, int s, int i) {
-            jungle = j;
-            sea = s;
-            ice = i;
-        }
-    }
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -24,53 +14,45 @@ public class Main {
         m = Integer.parseInt(st.nextToken());
         k = Integer.parseInt(br.readLine());
 
-        graph = new char[n][m];
-        prefixSum = new Triple[n+1][m+1];
-        for (int i = 0; i < n; i++) {
-            String tmp = br.readLine();
-            for (int j = 0; j < m; j++) graph[i][j] = tmp.charAt(j);
-        }
-
-        for (int i = 0; i <= n; i++) {
-            for (int j = 0; j <= m; j++) {
-                prefixSum[i][j] = new Triple(0, 0, 0);
-            }
-        }
+        jungleSum = new int[n + 1][m + 1];
+        seaSum = new int[n + 1][m + 1];
+        iceSum = new int[n + 1][m + 1];
 
         for (int i = 1; i <= n; i++) {
+            String row = br.readLine();
             for (int j = 1; j <= m; j++) {
-                if (graph[i-1][j-1] == 'J') {
-                    prefixSum[i][j].jungle = prefixSum[i-1][j].jungle + prefixSum[i][j-1].jungle + 1 - prefixSum[i-1][j-1].jungle;
-                    prefixSum[i][j].sea = prefixSum[i-1][j].sea + prefixSum[i][j-1].sea - prefixSum[i-1][j-1].sea;
-                    prefixSum[i][j].ice = prefixSum[i-1][j].ice + prefixSum[i][j-1].ice - prefixSum[i-1][j-1].ice;
-                } else if (graph[i-1][j-1] == 'I') {
-                    prefixSum[i][j].ice = prefixSum[i-1][j].ice + prefixSum[i][j-1].ice + 1 - prefixSum[i-1][j-1].ice;
-                    prefixSum[i][j].sea = prefixSum[i-1][j].sea + prefixSum[i][j-1].sea - prefixSum[i-1][j-1].sea;
-                    prefixSum[i][j].jungle = prefixSum[i-1][j].jungle + prefixSum[i][j-1].jungle - prefixSum[i-1][j-1].jungle;
-                } else {
-                    prefixSum[i][j].sea = prefixSum[i-1][j].sea + prefixSum[i][j-1].sea + 1 - prefixSum[i-1][j-1].sea;
-                    prefixSum[i][j].ice = prefixSum[i-1][j].ice + prefixSum[i][j-1].ice - prefixSum[i-1][j-1].ice;
-                    prefixSum[i][j].jungle = prefixSum[i-1][j].jungle + prefixSum[i][j-1].jungle - prefixSum[i-1][j-1].jungle;
-                }
+                char terrain = row.charAt(j - 1);
+
+                int isJungle = terrain == 'J' ? 1 : 0;
+                int isSea    = terrain == 'O' ? 1 : 0;
+                int isIce    = terrain == 'I' ? 1 : 0;
+
+                jungleSum[i][j] = jungleSum[i - 1][j] + jungleSum[i][j - 1] - jungleSum[i - 1][j - 1] + isJungle;
+                seaSum[i][j]    = seaSum[i - 1][j]    + seaSum[i][j - 1]    - seaSum[i - 1][j - 1]    + isSea;
+                iceSum[i][j]    = iceSum[i - 1][j]    + iceSum[i][j - 1]    - iceSum[i - 1][j - 1]    + isIce;
             }
         }
-        // System.out.println(prefixSum[2][4].jungle);
 
         for (int i = 0; i < k; i++) {
-            int a, b, c, d;
             st = new StringTokenizer(br.readLine());
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            int c = Integer.parseInt(st.nextToken());
+            int d = Integer.parseInt(st.nextToken());
 
-            a = Integer.parseInt(st.nextToken());
-            b = Integer.parseInt(st.nextToken());
-            c = Integer.parseInt(st.nextToken());
-            d = Integer.parseInt(st.nextToken());
+            int jungle = getSum(jungleSum, a, b, c, d);
+            int sea = getSum(seaSum, a, b, c, d);
+            int ice = getSum(iceSum, a, b, c, d);
 
-            bw.write((prefixSum[c][d].jungle - prefixSum[a-1][d].jungle - prefixSum[c][b-1].jungle + prefixSum[a-1][b-1].jungle) + " ");
-            bw.write((prefixSum[c][d].sea - prefixSum[a-1][d].sea - prefixSum[c][b-1].sea + prefixSum[a-1][b-1].sea) + " ");
-            bw.write((prefixSum[c][d].ice - prefixSum[a-1][d].ice - prefixSum[c][b-1].ice + prefixSum[a-1][b-1].ice) + "\n");
+            bw.write(jungle + " " + sea + " " + ice + "\n");
         }
+
         bw.flush();
         bw.close();
         br.close();
+    }
+
+    static int getSum(int[][] sum, int a, int b, int c, int d) {
+        return sum[c][d] - sum[a - 1][d] - sum[c][b - 1] + sum[a - 1][b - 1];
     }
 }
