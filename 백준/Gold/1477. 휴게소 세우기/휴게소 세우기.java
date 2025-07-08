@@ -2,8 +2,9 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int n, m, l, answer = Integer.MAX_VALUE;
-    static ArrayList<Integer> list, gap;
+    static int n, m, l;
+    static List<Integer> restAreas = new ArrayList<>();
+    static List<Integer> gaps = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -13,46 +14,48 @@ public class Main {
         m = Integer.parseInt(st.nextToken());
         l = Integer.parseInt(st.nextToken());
 
-        if (n == 0) {
-            answer = (l % (m+1) == 0) ? 0 : 1;
-            System.out.println(answer + (l / (m+1)));
-            return;
+        if (n > 0) {
+            st = new StringTokenizer(br.readLine());
+            for (int i = 0; i < n; i++) {
+                restAreas.add(Integer.parseInt(st.nextToken()));
+            }
+            restAreas.sort(Comparator.naturalOrder());
         }
 
-        list = new ArrayList<>();
-        gap = new ArrayList<>();
-        
-        st = new StringTokenizer(br.readLine());
-        for (int i = 0; i < n; i++) list.add(Integer.parseInt(st.nextToken()));
-        list.sort((i1, i2) -> Integer.compare(i1, i2));
-
+        // 구간 차이 계산
         int before = 0;
-        for (int i = 0; i < n; i++) {
-            gap.add(list.get(i) - before);
-            before = list.get(i);
+        for (int pos : restAreas) {
+            gaps.add(pos - before);
+            before = pos;
         }
-        gap.add(l - before);
-        gap.sort((i1, i2) -> Integer.compare(i1, i2));
+        gaps.add(l - before);
 
+        // 이분 탐색 범위 설정
         int left = 1;
-        int right = gap.get(gap.size()-1);
+        int right = l;
+        int answer = 0;
 
         while (left <= right) {
             int mid = (left + right) / 2;
 
-            int cnt = 0;
-            for (int num : gap) {
-                cnt += (num % mid == 0) ? (num / mid) - 1 : (num / mid);
-            }
+            int required = getRequiredStations(gaps, mid);
 
-            if (cnt <= m) {
+            if (required <= m) {
                 answer = mid;
-                right = mid-1;
+                right = mid - 1; // 더 줄일 수 있는가?
             } else {
-                left = mid+1;
+                left = mid + 1;
             }
         }
 
         System.out.println(answer);
+    }
+
+    private static int getRequiredStations(List<Integer> gaps, int maxLength) {
+        int count = 0;
+        for (int gap : gaps) {
+            count += (gap - 1) / maxLength;
+        }
+        return count;
     }
 }
