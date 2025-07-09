@@ -2,15 +2,24 @@ import java.util.*;
 import java.io.*;
 
 class Solution {
-    static long[][] dp;
+    static long[] dp;
     
     public long solution(int[] sequence) {
-        long answer = 0;
-        dp = new long[sequence.length+1][2];
+        dp = new long[2];
+        dp[0] = sequence[0];
+        dp[1] = -sequence[0];
+        long answer = Math.max(dp[0], dp[1]);
+        if (sequence.length == 1) return answer;
+        
+        long[] newDp;
         for (int i = 1; i <= sequence.length; i++) {
-            dp[i][0] = Math.max(sequence[i-1], sequence[i-1] + dp[i-1][1]);
-            dp[i][1] = Math.max(sequence[i-1] * -1, sequence[i-1] * -1 + dp[i-1][0]);
-            answer = Math.max(answer, Math.max(dp[i][0], dp[i][1]));
+            newDp = new long[2];
+            newDp[0] = Math.max(sequence[i-1], sequence[i-1] + dp[1]);
+            newDp[1] = Math.max(-sequence[i-1], -sequence[i-1] + dp[0]);
+            
+            dp[0] = newDp[0];
+            dp[1] = newDp[1];
+            answer = Math.max(answer, Math.max(newDp[0], newDp[1]));
         }
         
         return answer;
