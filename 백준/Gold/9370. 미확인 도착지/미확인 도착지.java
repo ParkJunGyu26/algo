@@ -3,7 +3,6 @@ import java.util.*;
 
 public class Main {
     static int T;
-    static final int MAX = 100_000_000;
 
     static class Edge {
         int to, dist;
@@ -70,7 +69,7 @@ public class Main {
 
             // 다익스트라 거리 배열
             int[][] res = new int[n+1][3];
-            for (int i = 0; i <= n; i++) Arrays.fill(res[i], MAX);
+            for (int i = 0; i <= n; i++) Arrays.fill(res[i], Integer.MAX_VALUE);
 
             // s 에서 다익스트라
             dijkstra(s, res, graph, 0);
