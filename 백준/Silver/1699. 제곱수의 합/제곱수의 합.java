@@ -1,7 +1,6 @@
 import java.util.*;
 import java.io.*;
 
-// O(N * A) -> A 는 제곱수의 개수(최대 350)
 public class Main {
     static int n;
     static int[] dp;
@@ -21,12 +20,15 @@ public class Main {
             num++;
         }
 
-        for (int i = 2; i <= n; i++) {
-            for (int mulNum : list) {
-                if (mulNum > i) break;
-                dp[i] = Math.min(dp[i], dp[mulNum] + dp[i - mulNum]);
+        dp[0] = 0;
+        dp[1] = 1;
+        
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j * j <= i; j++) {
+                dp[i] = Math.min(dp[i], dp[i - j * j] + 1);
             }
         }
+
 
         System.out.println(dp[n]);
     }
