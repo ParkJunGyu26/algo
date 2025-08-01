@@ -4,7 +4,6 @@ import java.io.*;
 public class Main {
     static int n;
     static int[] dp;
-    static ArrayList<Integer> list;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -12,13 +11,6 @@ public class Main {
 
         dp = new int[n+1];
         Arrays.fill(dp, 100001);
-        list = new ArrayList<>();
-        int num = 1;
-        while (num * num <= n) {
-            list.add(num * num);
-            dp[num * num] = 1;
-            num++;
-        }
 
         dp[0] = 0;
         dp[1] = 1;
