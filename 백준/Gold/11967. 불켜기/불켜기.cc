@@ -22,15 +22,34 @@ void bfs() {
         int y = q.front().second;
         q.pop();
 
-        bool isOn = false;
-
         while (!info[y][x].empty()) {
             int xx = info[y][x].back().first;
             int yy = info[y][x].back().second;
+            info[y][x].pop_back();
+
+            if (graph[yy][xx] == 1) continue;
 
             graph[yy][xx] = 1;
-            info[y][x].pop_back();
-            isOn = true;
+            light++;
+
+            bool isPossible = false;
+
+            for (int i = 0; i < 4; i++) {
+                int nx = xx + dx[i];
+                int ny = yy + dy[i];
+
+                if (!(-1 < nx && nx < n && -1 < ny && ny < n)) continue;
+
+                if (visited[ny][nx]) {
+                    isPossible = true;
+                    break;
+                }
+            }
+
+            if (isPossible) {
+                visited[yy][xx] = true;
+                q.push({xx, yy});
+            }
         }
 
         for (int i = 0; i < 4; i++) {
@@ -40,13 +59,6 @@ void bfs() {
             if (!(-1 < nx && nx < n && -1 < ny && ny < n)) continue;
 
             if (graph[ny][nx] == 0) continue;
-
-            if (isOn) {
-                for (int j = 0; j < n; j++)
-                    for (int k = 0; k < n; k++) visited[j][k] = false;
-                q.push({nx, ny});
-                visited[ny][nx] = true;
-            }
 
             if (!visited[ny][nx]) {
                 q.push({nx, ny});
@@ -73,10 +85,6 @@ int main() {
     }
 
     bfs();
-
-    int answer = 0;
-    for (int i = 0; i < n; i++) 
-        for (int j = 0; j < n; j++) if (graph[i][j] == 1) answer++;
     
-    cout << answer;
+    cout << light;
 }
