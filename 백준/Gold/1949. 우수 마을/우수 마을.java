@@ -1,7 +1,6 @@
 import java.io.*;
 import java.util.*;
 
-// 트리 DP?
 public class Main {
     static boolean[] visited;
     static int n, answer = 0;
@@ -13,7 +12,6 @@ public class Main {
         if (visited[node]) return;
 
         visited[node] = true;
-        dp[node][0] = 0;
         dp[node][1] = res[node];
 
         for (int next : graph.get(node)) {
