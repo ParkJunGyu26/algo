@@ -3,7 +3,7 @@ import java.io.*;
 
 public class Main {
     static int n, m;
-    static int[][] graph;
+    static boolean[][] graph;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -12,7 +12,7 @@ public class Main {
         n = Integer.parseInt(br.readLine());
         m = Integer.parseInt(br.readLine());
 
-        graph = new int[n+1][n+1];
+        graph = new boolean[n+1][n+1];
 
         for (int i = 0; i < m; i++) {
             int a, b;
@@ -20,14 +20,14 @@ public class Main {
             a = Integer.parseInt(st.nextToken());
             b = Integer.parseInt(st.nextToken());
 
-            graph[b][a] = 1;
+            graph[b][a] = true;
         }
 
         for (int k = 1; k <= n; k++) { // 중간
             for (int i = 1; i <= n; i++) { // 시작
                 for (int j = 1; j <= n; j++) { // 도착
-                    if (graph[i][j] == 0) {
-                        graph[i][j] = graph[i][k] * graph[k][j];
+                    if (!graph[i][j]) {
+                        graph[i][j] = (graph[i][k] && graph[k][j]);
                     }
                 }
             }
@@ -37,13 +37,12 @@ public class Main {
             int cnt = 1;
             for (int j = 1; j <= n; j++) {
                 if (i == j) continue;
-                if (graph[j][i] == 1 || graph[i][j] == 1) cnt++;
+                if (graph[j][i] || graph[i][j]) cnt++;
             }
 
-            sb.append((n - cnt));
-            sb.append("\n");
+            sb.append((n - cnt)).append("\n");
         }
 
-        System.out.println(sb.toString());
+        System.out.println(sb);
     }
 }
