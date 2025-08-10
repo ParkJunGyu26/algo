@@ -12,7 +12,7 @@ public class Main {
         n = Integer.parseInt(br.readLine());
         S = br.readLine();
 
-        countArr = new int[27];
+        countArr = new int[26];
         int left = 0;
         int right = 0;
 
