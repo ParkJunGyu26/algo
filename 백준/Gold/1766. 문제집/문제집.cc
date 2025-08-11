@@ -1,49 +1,53 @@
 #include <iostream>
 #include <vector>
 #include <queue>
-#include <unordered_map>
 
 using namespace std;
 
 int n, m;
+vector<int> count_vec, answer;
 vector<vector<int>> graph;
-vector<int> degree, answer;
-unordered_map<int, vector<int>> um;
 
-void topologySort() {
+void topology() {
 	priority_queue<int> pq;
-	for (int i = 1; i <= n; i++) if (degree[i] == 0) pq.push(-i);
-
-	while (!pq.empty()) {
-		int node = -pq.top();
-		pq.pop();
-
-		answer.push_back(node);
-
-		for (int i = 0; i < graph[node].size(); i++) {
-			int nNode = graph[node][i];
-
-			if (--degree[nNode] == 0) {
-				pq.push(-nNode);
-			}
+	for (int i = 1; i <= n; i++) {
+		if (count_vec[i] == 0) {
+			pq.push(-i);
 		}
 	}
 
-	for (auto ans : answer) cout << ans << " ";
+	while(!pq.empty()) {
+		int node = -pq.top();
+		pq.pop();
+
+		for (int nextNode : graph[node]) {
+
+			if(--count_vec[nextNode] == 0) {
+				pq.push(-nextNode);
+			}
+		}
+
+		answer.push_back(node);
+	}
 }
 
 int main() {
-	ios_base::sync_with_stdio(false);cout.tie(NULL);cin.tie(NULL);
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
 
 	cin >> n >> m;
 	graph.resize(n+1);
-	degree.resize(n+1);
+	count_vec.resize(n+1);
+
 	for (int i = 0; i < m; i++) {
 		int a, b;
 		cin >> a >> b;
+
 		graph[a].push_back(b);
-		degree[b]++;
+		count_vec[b]++;
 	}
 
-	topologySort();
+	topology();
+	for (auto ans : answer) cout << ans << " ";
 }
