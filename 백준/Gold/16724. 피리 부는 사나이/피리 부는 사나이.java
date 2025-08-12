@@ -2,69 +2,64 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int n, m;
-    static HashMap<Character, Integer> hm;
-    static int[] dx = {0, 1, 0, -1}, dy = {-1, 0, 1, 0};
-    static int[][] res;
+    static int n, m, cnt;
     static char[][] graph;
-    static HashSet<Integer> hs;
+    static int[][] visited; // 0=미방문, 1=방문중, 2=완료
+    static int[] dx = {-1, 1, 0, 0}; // U D L R
+    static int[] dy = {0, 0, -1, 1};
 
-    private static int dfs(int x, int y, int kind) {
-        res[y][x] = kind;
+    static void dfs(int x, int y) {
+        visited[x][y] = 1; // 방문중
 
-        int dire = hm.get(graph[y][x]);
-        int nx = x + dx[dire];
-        int ny = y + dy[dire];
+        int dir = getDir(graph[x][y]);
+        int nx = x + dx[dir];
+        int ny = y + dy[dir];
 
-        if (!(-1 < nx && nx < m && -1 < ny && ny < n)) return 0;
-
-        if (res[ny][nx] != 0) {
-            if (res[ny][nx] == kind) return kind;
-            return res[y][x] = res[ny][nx];
+        if (visited[nx][ny] == 0) {
+            dfs(nx, ny);
+        } else if (visited[nx][ny] == 1) {
+            // 방문 중인 곳을 다시 방문 → 사이클
+            cnt++;
         }
 
-        res[y][x] = dfs(nx, ny, kind);
-
-        if (res[y][x] != kind) return res[y][x];
-
-        return kind;
+        visited[x][y] = 2; // 완료
     }
-    
+
+    static int getDir(char c) {
+        switch (c) {
+            case 'U': return 0;
+            case 'D': return 1;
+            case 'L': return 2;
+            case 'R': return 3;
+        }
+        return -1; // 이 경우는 없음
+    }
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
+
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
 
-        hm = new HashMap<>();
-        hm.put('D', 2);
-        hm.put('L', 3);
-        hm.put('R', 1);
-        hm.put('U', 0);
-
-        res = new int[n][m];
         graph = new char[n][m];
+        visited = new int[n][m];
+
         for (int i = 0; i < n; i++) {
             String tmp = br.readLine();
-            for (int j = 0; j < m; j++) graph[i][j] = tmp.charAt(j);
+            for (int j = 0; j < m; j++) {
+                graph[i][j] = tmp.charAt(j);
+            }
         }
 
-        int cnt = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
-                if (res[i][j] == 0) {
-                    dfs(j, i, ++cnt);
+                if (visited[i][j] == 0) {
+                    dfs(i, j);
                 }
             }
         }
 
-        hs = new HashSet<>();
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                if (res[i][j] != 0) hs.add(res[i][j]);
-            }
-        }
-
-        System.out.println(hs.size());
+        System.out.println(cnt);
     }
 }
