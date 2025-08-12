@@ -19,6 +19,11 @@ public class Main {
 
         while (!q.isEmpty()) {
             int node = q.poll();
+            
+            if (node == w) {
+                sb.append(answer[w]).append("\n");
+                return;
+            }
 
             for (int next : graph.get(node)) {
                 if (--inDegree[next] == 0) {
@@ -27,8 +32,6 @@ public class Main {
                 answer[next] = Math.max(answer[next], (answer[node] + res[next]));
             }
         }
-
-        sb.append(answer[w]).append("\n");
     }
 
     public static void main(String[] args)throws IOException{
