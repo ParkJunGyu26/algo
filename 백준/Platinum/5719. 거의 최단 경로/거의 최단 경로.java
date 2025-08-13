@@ -3,7 +3,7 @@ import java.util.*;
 
 public class Main {
     // 최단 경로 탐색
-    private static int dijkstra1(int start, int end, ArrayList<ArrayList<int[]>> graph) {
+    private static int dijkstra1(int start, int end, ArrayList<ArrayList<int[]>> graph, boolean[][] shortEdge) {
         int[] res = new int[graph.size()];
         Arrays.fill(res, Integer.MAX_VALUE);
         res[start] = 0;
@@ -22,6 +22,8 @@ public class Main {
             for (int[] info : graph.get(node)) {
                 int nextNode = info[0];
                 int nextDist = info[1];
+                
+                if (shortEdge[node][nextNode]) continue; // 최단 경로에 포함된 엣지이므로 패스
 
                 if (res[nextNode] > res[node] + nextDist) {
                     res[nextNode] = res[node] + nextDist;
@@ -30,7 +32,7 @@ public class Main {
             }
         }
 
-        return res[end];
+        return res[end] == Integer.MAX_VALUE ? -1 : res[end];
     }
 
     private static void dfs(int node, ArrayList<HashSet<Integer>> parent, boolean[][] shortEdge, int start, boolean[] visited) {
@@ -92,39 +94,6 @@ public class Main {
         }
     }
 
-    // 거의 최단 경로 탐색
-    private static int dijkstra3(int start, int end, ArrayList<ArrayList<int[]>> graph, boolean[][] shortEdge) {
-        int[] res = new int[graph.size()];
-        Arrays.fill(res, Integer.MAX_VALUE);
-        res[start] = 0;
-
-        PriorityQueue<int[]> pq = new PriorityQueue<>((i1, i2) -> Integer.compare(i1[1], i2[1]));
-        pq.offer(new int[] {start, 0});
-
-        while (!pq.isEmpty()) {
-            int[] cur = pq.poll();
-
-            int node = cur[0];
-            int dist = cur[1];
-
-            if (res[node] < dist) continue;
-
-            for (int[] info : graph.get(node)) {
-                int nextNode = info[0];
-                int nextDist = info[1];
-
-                if (shortEdge[node][nextNode]) continue; // 최단 경로에 포함된 엣지이므로 패스
-
-                if (res[nextNode] > res[node] + nextDist) {
-                    res[nextNode] = res[node] + nextDist;
-                    pq.offer(new int[] {nextNode, res[nextNode]});
-                }
-            }
-        }
-
-        return res[end] == Integer.MAX_VALUE ? -1 : res[end];
-    }
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
@@ -159,16 +128,13 @@ public class Main {
             boolean[][] shrotEdge = new boolean[n][n];
             
             // 1. s -> d 최단경로 값 찾기
-            int shortDist = dijkstra1(s, d, graph);
+            int shortDist = dijkstra1(s, d, graph, shrotEdge);
             
-            // 2-1. s -> d 최단경로에 포함된 경로(엣지) 찾기
+            // 2. s -> d 최단경로에 포함된 경로(엣지) 찾기
             dijkstra2(s, d, graph, shortDist, shrotEdge);
 
-            // 2-2. d -> s 최단경로에 포함된 경로(엣지) 찾기
-            dijkstra2(d, s, graph, shortDist, shrotEdge);
-
             // 3. s -> d "거의 최단 경로" 찾기
-            int answer = dijkstra3(s, d, graph, shrotEdge);
+            int answer = dijkstra1(s, d, graph, shrotEdge);
 
             sb.append(answer).append("\n");
         }
