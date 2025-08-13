@@ -2,95 +2,93 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int n;
-    static char[][] graph;
-    static int[][][] dp; // {길이, 기계 숫자}
-
-    public static void main(String[] args) throws IOException {
+    static final long INF = (long)4e18;
+    
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        n = Integer.parseInt(br.readLine());
-        dp = new int[n][n][2];
-        graph = new char[n][n];
-        int total = 0;
+        int N = Integer.parseInt(br.readLine().trim());
 
-        for (int i = 0; i < n; i++) {
-            String tmp = br.readLine();
-            for (int j = 0; j < n; j++) {
-                graph[i][j] = tmp.charAt(j);
-                if (graph[i][j] == '1') total++;
+        long[] prev = new long[N + 1];
+        long[] curr = new long[N + 1];
+        long[] pref = new long[N + 1];
+        long[] suff = new long[N + 2];
+
+        Arrays.fill(prev, INF);
+        prev[1] = 0;
+
+        for (int r = 1; r <= N; r++) {
+            String line = br.readLine().trim();
+
+            int L = N + 1;
+            int R = 0;
+            for (int c = 1; c <= N; c++) {
+                char ch = line.charAt(c - 1);
+                if (ch == '1') {
+                    if (L == N + 1) L = c;
+                    R = c;
+                }
             }
-        }
+            boolean empty = (R == 0);
 
-        dp[0][0][0] = 1;
-        dp[0][0][1] = (graph[0][0] == '1') ? 1 : 0;
+            long best = INF;
+            for (int i = 1; i <= N; i++) {
+                long val = prev[i];
+                if (val < INF) val -= i;
+                best = Math.min(best, val);
+                pref[i] = best;
+            }
+            best = INF;
+            suff[N + 1] = INF;
+            for (int i = N; i >= 1; i--) {
+                long val = prev[i];
+                if (val < INF) val += i;
+                best = Math.min(best, val);
+                suff[i] = best;
+            }
 
-        // 첫 행
-        for (int j = 1; j < n; j++) {
-            dp[0][j][0] = dp[0][j-1][0] + 1;
-            dp[0][j][1] = dp[0][j-1][1] + ((graph[0][j] == '1') ? 1 : 0);
-        }
+            Arrays.fill(curr, INF);
 
-        int[][] leftToRight = new int[n][2];
-        int[][] rightToLeft = new int[n][2];
-
-        for (int i = 1; i < n; i++) {
-            // 왼쪽 → 오른쪽
-            leftToRight[0][0] = dp[i-1][0][0] + 1;
-            leftToRight[0][1] = dp[i-1][0][1] + ((graph[i][0] == '1') ? 1 : 0);
-            for (int j = 1; j < n; j++) {
-                int cnt = (graph[i][j] == '1') ? 1 : 0;
-                if (leftToRight[j-1][1] < dp[i-1][j][1]) {
-                    leftToRight[j][0] = dp[i-1][j][0] + 1;
-                    leftToRight[j][1] = dp[i-1][j][1] + cnt;
-                } else if (leftToRight[j-1][1] > dp[i-1][j][1]) {
-                    leftToRight[j][0] = leftToRight[j-1][0] + 1;
-                    leftToRight[j][1] = leftToRight[j-1][1] + cnt;
-                } else {
-                    if (leftToRight[j-1][0] > dp[i-1][j][0]) {
-                        leftToRight[j][0] = dp[i-1][j][0] + 1;
-                        leftToRight[j][1] = dp[i-1][j][1] + cnt;
-                    } else {
-                        leftToRight[j][0] = leftToRight[j-1][0] + 1;
-                        leftToRight[j][1] = leftToRight[j-1][1] + cnt;
+            if (empty) {
+                for (int c = 1; c <= N; c++) {
+                    long a = pref[c];
+                    if (a < INF) a += c;
+                    long b = suff[c];
+                    if (b < INF) b -= c;
+                    curr[c] = Math.min(a, b);
+                }
+            } else {
+                // 왼쪽으로 마무리
+                long rightMin = suff[R];
+                if (rightMin < INF) {
+                    for (int c = 1; c <= L; c++) {
+                        curr[c] = Math.min(curr[c], rightMin - c);
+                    }
+                }
+                // 오른쪽으로 마무리
+                long leftMin = pref[L];
+                if (leftMin < INF) {
+                    for (int c = R; c <= N; c++) {
+                        long val = leftMin + c;
+                        if (val < curr[c]) curr[c] = val;
                     }
                 }
             }
 
-            // 오른쪽 → 왼쪽
-            rightToLeft[n-1][0] = dp[i-1][n-1][0] + 1;
-            rightToLeft[n-1][1] = dp[i-1][n-1][1] + ((graph[i][n-1] == '1') ? 1 : 0);
-            for (int j = n-2; j >= 0; j--) {
-                int cnt = (graph[i][j] == '1') ? 1 : 0;
-                if (rightToLeft[j+1][1] < dp[i-1][j][1]) {
-                    rightToLeft[j][0] = dp[i-1][j][0] + 1;
-                    rightToLeft[j][1] = dp[i-1][j][1] + cnt;
-                } else if (rightToLeft[j+1][1] > dp[i-1][j][1]) {
-                    rightToLeft[j][0] = rightToLeft[j+1][0] + 1;
-                    rightToLeft[j][1] = rightToLeft[j+1][1] + cnt;
+            if (r == N) {
+                long last = curr[N];
+                if (last >= INF / 2) {
+                    System.out.println(-1);
+                    return;
                 } else {
-                    if (rightToLeft[j+1][0] > dp[i-1][j][0]) {
-                        rightToLeft[j][0] = dp[i-1][j][0] + 1;
-                        rightToLeft[j][1] = dp[i-1][j][1] + cnt;
-                    } else {
-                        rightToLeft[j][0] = rightToLeft[j+1][0] + 1;
-                        rightToLeft[j][1] = rightToLeft[j+1][1] + cnt;
-                    }
+                    long answer = last + N;
+                    System.out.println(answer);
+                    return;
                 }
             }
 
-            // dp 업데이트: 칸별로 최적값 선택
-            for (int j = 0; j < n; j++) {
-                if (leftToRight[j][1] > rightToLeft[j][1] || 
-                    (leftToRight[j][1] == rightToLeft[j][1] && leftToRight[j][0] <= rightToLeft[j][0])) {
-                    dp[i][j][0] = leftToRight[j][0];
-                    dp[i][j][1] = leftToRight[j][1];
-                } else {
-                    dp[i][j][0] = rightToLeft[j][0];
-                    dp[i][j][1] = rightToLeft[j][1];
-                }
-            }
+            long[] tmp = prev;
+            prev = curr;
+            curr = tmp;
         }
-
-        System.out.println(dp[n-1][n-1][1] == total ? dp[n-1][n-1][0] : -1);
     }
 }
