@@ -1,19 +1,28 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-    static int INF = 10_000_001;
+    // 10^12
+    static final long MAX_DISTANCE = 100L*100_000*100_000 + 1;
+
     static int n, m;
-    static int[][] answer;
-    
+    static long[][] dist;
+    static ArrayList<ArrayList<int[]>> graph;
+
+    // 플로이드 워셜 : O(N^3)
+    // N * 다익스트라 : O(N * M log N)
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-
+        StringBuilder sb = new StringBuilder();
         n = Integer.parseInt(br.readLine());
         m = Integer.parseInt(br.readLine());
-        answer = new int[n+1][n+1];
-        for (int i = 0; i <= n; i++) Arrays.fill(answer[i], INF);
+        
+        dist = new long[n+1][n+1];
+        for (int i = 0; i <= n; i++) {
+            Arrays.fill(dist[i], MAX_DISTANCE);
+            dist[i][i] = 0;
+        }
 
         for (int i = 0; i < m; i++) {
             int a, b, c;
@@ -23,27 +32,23 @@ public class Main {
             b = Integer.parseInt(st.nextToken());
             c = Integer.parseInt(st.nextToken());
 
-            answer[a][b] = Math.min(answer[a][b], c);
+            dist[a][b] = Math.min(dist[a][b], c);
         }
 
         for (int k = 1; k <= n; k++) {
             for (int i = 1; i <= n; i++) {
                 for (int j = 1; j <= n; j++) {
-                    if (i == j) answer[i][j] = 0;
-                    else answer[i][j] = Math.min(answer[i][j], answer[i][k] + answer[k][j]);
+                    dist[i][j] = Math.min(dist[i][j], dist[i][k] + dist[k][j]);
                 }
             }
         }
 
         for (int i = 1; i <= n; i++) {
             for (int j = 1; j <= n; j++) {
-                if (answer[i][j] == INF) bw.write(0 + " ");
-                else bw.write(answer[i][j] + " ");
+                sb.append((dist[i][j] == MAX_DISTANCE ? 0 : dist[i][j])).append(" ");
             }
-            bw.write("\n");
+            sb.append("\n");
         }
-        bw.flush();
-        bw.close();
-        br.close();
+        System.out.println(sb);
     }
 }
