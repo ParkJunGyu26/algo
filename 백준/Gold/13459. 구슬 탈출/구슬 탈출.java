@@ -2,10 +2,10 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static boolean aResult, bResult;
     static int n, m, ax, ay, bx, by;
     static int[] dx = {0, 1, 0, -1}, dy = {-1, 0, 1, 0};
     static char[][] graph;
+    static int[][][] visited;
 
     private static void redNextBlue(ArrayDeque<int[]> q, int[] cur, int dire) {
         int Ax = cur[0];
@@ -17,6 +17,12 @@ public class Main {
         int ny = Ay + dy[dire];
 
         int[] next = new int[5];
+        next[0] = Ax;
+        next[1] = Ay;
+        next[2] = Bx;
+        next[3] = By;
+        next[4] = cur[4] + 1;
+
         // 레드
         while (true) {
             if (graph[ny][nx] == 'O' || graph[ny][nx] == '#' || ((nx == Bx) && (ny == By))) {
@@ -52,8 +58,13 @@ public class Main {
             nx = Bx + dx[dire];
             ny = By + dy[dire];
         }
-        next[4] = cur[4]+1;
-        q.offer(next);
+
+        for (int i = 0; i < 4; i++) {
+            if (cur[i] != next[i]) {
+                q.offer(next);
+                return;
+            }
+        }
     }
 
     private static void blueNextRed(ArrayDeque<int[]> q, int[] cur, int dire) {
@@ -61,10 +72,17 @@ public class Main {
         int Ay = cur[1];
         int Bx = cur[2];
         int By = cur[3];
+
         int nx = Bx + dx[dire];
         int ny = By + dy[dire];
 
         int[] next = new int[5];
+        next[0] = Ax;
+        next[1] = Ay;
+        next[2] = Bx;
+        next[3] = By;
+        next[4] = cur[4] + 1;
+
         // 블루
         while (true) {
             if (graph[ny][nx] == 'O' || graph[ny][nx] == '#' || ((nx == Ax) && (ny == Ay))) {
@@ -100,8 +118,13 @@ public class Main {
             nx = Ax + dx[dire];
             ny = Ay + dy[dire];
         }
-        next[4] = cur[4]+1;
-        q.offer(next);
+
+        for (int i = 0; i < 4; i++) {
+            if (cur[i] != next[i]) {
+                q.offer(next);
+                return;
+            }
+        }
     }
     
     // ax, bx 비교해서 왼쪽 갈 때는 작은 쪽 먼저, 오른쪽 갈 때는 큰 쪽 먼저
@@ -110,7 +133,6 @@ public class Main {
         ArrayDeque<int[]> q = new ArrayDeque<>();
         q.offer(new int[] {ax, ay, bx, by, 0});
 
-        // 4^10 -> 2^20
         while(!q.isEmpty()) {
             int[] cur = q.poll();
 
@@ -153,7 +175,6 @@ public class Main {
             } else {
                 blueNextRed(q, cur, 3);
             }
-
         }
 
         return 0;
@@ -166,6 +187,8 @@ public class Main {
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
         graph = new char[n][m];
+        visited = new int[n][m][4];
+
         for (int i = 0; i < n; i++) {
             String tmp = br.readLine();
             for (int j = 0; j < m; j++) {
@@ -177,6 +200,8 @@ public class Main {
                     bx = j;
                     by = i;
                 }
+
+                Arrays.fill(visited[i][j], 2);
             }
         }
 
