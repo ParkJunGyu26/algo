@@ -38,9 +38,11 @@ public class Main {
             return result;
         });
 
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
-            System.out.print(list.get(i)[1] + " ");
-            if (i % 10 == 9) System.out.println();
+            sb.append(list.get(i)[1]).append(" ");
+            if (i % 10 == 9) sb.append("\n");
         }
+        System.out.println(sb);
     }
 }
