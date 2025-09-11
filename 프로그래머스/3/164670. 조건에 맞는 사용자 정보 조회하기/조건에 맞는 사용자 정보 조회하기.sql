@@ -1,0 +1,18 @@
+-- 코드를 입력하세요
+SELECT
+    usr.USER_ID AS USER_ID,
+    usr.NICKNAME AS NICKNAME,
+    CONCAT_WS(' ', usr.CITY, usr.STREET_ADDRESS1, usr.STREET_ADDRESS2) AS 전체주소,
+    CONCAT_WS('-', SUBSTRING(usr.TLNO, 1, 3), SUBSTRING(usr.TLNO, 4, 4), SUBSTRING(usr.TLNO, 8)) AS 전화번호
+FROM
+    USED_GOODS_BOARD as board
+JOIN
+    USED_GOODS_USER as usr
+ON
+    board.WRITER_ID = usr.USER_ID
+GROUP BY
+    board.WRITER_ID
+HAVING
+    COUNT(*) >= 3
+ORDER BY
+    usr.USER_ID DESC
