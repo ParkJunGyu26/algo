@@ -1,0 +1,18 @@
+-- 코드를 작성해주세요
+SELECT
+    ID,
+    CASE
+        WHEN 순위 <= (SELECT COUNT(*) FROM ECOLI_DATA) * 0.25 THEN 'CRITICAL'
+        WHEN 순위 <= (SELECT COUNT(*) FROM ECOLI_DATA) * 0.5 THEN 'HIGH'
+        WHEN 순위 <= (SELECT COUNT(*) FROM ECOLI_DATA) * 0.75 THEN 'MEDIUM'
+        ELSE 'LOW'
+    END AS COLONY_NAME
+FROM (
+    SELECT
+        ID,
+        RANK() OVER (ORDER BY SIZE_OF_COLONY DESC) AS 순위
+    FROM
+        ECOLI_DATA
+) AS ranked_data
+ORDER BY
+    ID ASC;
