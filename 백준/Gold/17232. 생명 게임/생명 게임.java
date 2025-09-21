@@ -26,31 +26,30 @@ public class Main {
 
         while (t-- > 0) {
             char[][] nextGraph = new char[n][m];
+            int[][] prefixSum = new int[n+1][m+1];
+
             for (int i = 0; i < n; i++) Arrays.fill(nextGraph[i], '.');
 
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < m; j++) {
-                    int cnt = 0;
-                    for (int ny = i - k; ny <= i+k; ny++) {
-                        for (int nx = j - k; nx <= j+k; nx++) {
-                            if (!(-1 < nx && nx < m && -1 < ny && ny < n)) continue;
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= m; j++) prefixSum[i][j] = prefixSum[i-1][j] + prefixSum[i][j-1] - prefixSum[i-1][j-1] + (graph[i-1][j-1] == '*' ? 1: 0);
+            }
 
-                            if (ny == i && nx == j) continue;
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= m; j++) {
+                    int target = prefixSum[Math.min(n, i+k)][Math.min(m, j+k)] - prefixSum[Math.min(n, i+k)][Math.max(0, j-k-1)] - prefixSum[Math.max(0, i-k-1)][Math.min(m, j+k)] + prefixSum[Math.max(0, i-k-1)][Math.max(0, j-k-1)];
 
-                            if (graph[ny][nx] == '*') cnt++;
-                        }
-                    }
-
-                    if (graph[i][j] == '*') {
-                        if (a <= cnt && cnt <= b) nextGraph[i][j] = '*';
+                    if (graph[i-1][j-1] == '*') {
+                        target--;
+                        if (a <= target && target <= b) nextGraph[i-1][j-1] = '*';
                     } else {
-                        if (a < cnt && cnt <= b) nextGraph[i][j] = '*';
+                        if (a < target && target <= b) nextGraph[i-1][j-1] = '*';
                     }
                 }
             }
 
             for (int i = 0; i < n; i++)
                 for (int j = 0; j < m; j++) graph[i][j] = nextGraph[i][j];
+
         }
 
         StringBuilder sb = new StringBuilder();
@@ -58,6 +57,7 @@ public class Main {
             for (int j = 0; j < m; j++) sb.append(graph[i][j]);
             sb.append("\n");
         }
+
         System.out.println(sb);
     }
 }
